@@ -2,12 +2,12 @@
 NT548-lab2-group9-CloudFormation-CodePipeline
 
 Members of group 9:
-| MSSV | FullName | Email | |
-|-------------|-----------------------|---------------------------------|----------------|
+| MSSV | FullName | Email |
+|-------------|-----------------------|---------------------------------|
 | 21521023| Nguyễn Đức Trung Kiên | 21521023@gm.uit.edu.vn |
-| 21522530 | Hoàng Tất Quý | 21522530@gm.uit.edu.vn | |
-| 21522604 | Phùng Nam Thanh | 2152604@gm.uit.edu.vn | |
-| 21522729 | Đỗ Xuân Trường | 21522729@gm.uit.edu.vn | |
+| 21522530 | Hoàng Tất Quý | 21522530@gm.uit.edu.vn |
+| 21522604 | Phùng Nam Thanh | 21522604@gm.uit.edu.vn |
+| 21522729 | Đỗ Xuân Trường | 21522729@gm.uit.edu.vn |
 
 STEP:
 - git clone
