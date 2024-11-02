@@ -1,0 +1,97 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Main stack to deploy all sub-modules (VPC, NAT Gateway, EC2 Instances)
+
+Resources:
+  VPCStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/cloudformation-modules/vpc-networking.yml
+      Parameters:
+        VPCName: Lab1_Group9
+        VPCCIDR: 10.0.0.0/16
+        PublicSubnetCIDR: 10.0.0.0/24
+        PrivateSubnetCIDR: 10.0.1.0/24
+        InternetGateWayName: Lab1_Group9_IGW
+        PrivateSubnetName: Lab1_Group9_Private
+        PublicSubnetName: Lab1_Group9_Public
+   
+  NATGatewayStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/cloudformation-modules/nat-gateway.yml
+      Parameters:
+        VPCId: !GetAtt VPCStack.Outputs.VPCId
+        PublicSubnetId: !GetAtt VPCStack.Outputs.PublicSubnet0
+
+  RouteTablesStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/cloudformation-modules/route-tables.yml
+      Parameters:
+        VPCId: !GetAtt VPCStack.Outputs.VPCId
+        PublicSubnetId: !GetAtt VPCStack.Outputs.PublicSubnet0
+        NetworkAclName: Lab1_Group9-public-nacl
+        InternetGatewayId: !GetAtt VPCStack.Outputs.InternetGateway
+        NATGatewayId: !GetAtt NATGatewayStack.Outputs.NATGateway
+        PrivateSubnetId: !GetAtt VPCStack.Outputs.PrivateSubnet0
+        GatewayToInternetId: !GetAtt VPCStack.Outputs.GatewayToInternet
+        PrivateRouteTableName: Lab1_Group9_private_route_table
+        PublicRouteTableName: Lab1_Group9-public-route-table
+
+  EC2InstanceStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/cloudformation-modules/ec2-instances.yml
+      Parameters:
+        VPCId: !GetAtt VPCStack.Outputs.VPCId
+        PublicSubnetId: !GetAtt VPCStack.Outputs.PublicSubnet0
+        PrivateSubnetId: !GetAtt VPCStack.Outputs.PrivateSubnet0
+        KeyName: Lab1_Group9_Key
+        InstanceTypeParameter: t3.micro
+        PublicEC2InstanceSecurityGroupId: !GetAtt SecurityGroupStack.Outputs.PublicEC2InstanceSecurityGroup
+        PrivateEC2InstanceSecurityGroupId: !GetAtt SecurityGroupStack.Outputs.PrivateEC2InstanceSecurityGroup
+        PublicEC2InstanceName: Lab1_Group9_Public_EC2_Instance
+        PrivateEC2InstanceName: Lab1_Group9_Private_EC2_Instance
+      
+  SecurityGroupStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/cloudformation-modules/security-group.yml
+      Parameters:
+        VPCId: !GetAtt VPCStack.Outputs.VPCId
+        PublicEC2InstanceSecurityGroupName: Lab1_Group9_Public_SG
+        PrivateEC2InstanceSecurityGroupName: Lab1_Group9_Private_SG
+
+Outputs:
+  VPCId:
+    Description: VPC ID of the VPC created
+    Value: !GetAtt VPCStack.Outputs.VPCId
+
+  PublicSubnetId:
+    Description: Subnet ID of the public subnet
+    Value: !GetAtt VPCStack.Outputs.PublicSubnet0
+
+  PrivateSubnetId:
+    Description: Subnet ID of the private subnet
+    Value: !GetAtt VPCStack.Outputs.PrivateSubnet0
+
+  NATGatewayId:
+    Description: ID of the NAT Gateway 
+    Value: !GetAtt NATGatewayStack.Outputs.NATGateway
+
+  PublicEC2InstanceSecurityGroupId:
+    Description: Security Group ID of Public EC2 Instance
+    Value: !GetAtt SecurityGroupStack.Outputs.PublicEC2InstanceSecurityGroup
+
+  PrivateEC2InstanceSecurityGroupId:
+    Description: Security Group ID of Private EC2 Instance
+    Value: !GetAtt SecurityGroupStack.Outputs.PrivateEC2InstanceSecurityGroup
+  
+  InternetGatewayId:
+    Description: ID of the Internet Gateway
+    Value: !GetAtt VPCStack.Outputs.InternetGateway
+
+  GatewayToInternetId:
+    Description: ID of the Gateway To Internet
+    Value: !GetAtt VPCStack.Outputs.GatewayToInternet
+  

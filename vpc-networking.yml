@@ -1,0 +1,122 @@
+Parameters:
+  VPCName:
+    Description: The name of the VPC being created.
+    Type: String
+    Default: VPC Name
+  VPCCIDR:
+    Description: CIDR of VPC
+    Type: String
+    Default: 10.0.0.0/16
+  PublicSubnetCIDR:
+    Description: CIDR of Public Subnet
+    Type: String
+    Default: 10.0.0.0/24
+  PrivateSubnetCIDR:
+    Description: CIDR of Private Subnet
+    Type: String
+    Default: 10.0.1.0/24
+  InternetGateWayName:
+    Type: String
+    Description: "Name of the Internet Gateway"
+  PrivateSubnetName: 
+    Description: The name of the Private Subnet
+    Type: String
+    Default: Private Subnet Name
+  PublicSubnetName: 
+    Description: The name of the Public Subnet
+    Type: String
+    Default: Public Subnet Name
+
+# vpc-networking.yml
+Resources:
+#------------------------- VPC -------------------------#
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      EnableDnsSupport: "true"
+      EnableDnsHostnames: "true"
+      CidrBlock: !Ref VPCCIDR
+      Tags:
+        - Key: Application
+          Value: !Ref AWS::StackName
+        - Key: Network
+          Value: Public
+        - Key: Name
+          Value: !Ref VPCName
+#------------------------- Subnets -------------------------#
+  PublicSubnet0:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [0, !GetAZs us-east-1]
+      CidrBlock: !Ref PublicSubnetCIDR
+      MapPublicIpOnLaunch: "true"
+      Tags:
+        - Key: Application
+          Value: !Ref AWS::StackName
+        - Key: Network
+          Value: Public
+        - Key: Name
+          Value: !Ref PublicSubnetName
+
+  PrivateSubnet0:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [0, !GetAZs us-east-1]
+      CidrBlock: !Ref PrivateSubnetCIDR
+      Tags:
+        - Key: Application
+          Value: !Ref AWS::StackName
+        - Key: Network
+          Value: Private
+        - Key: Name
+          Value: !Ref PrivateSubnetName
+  
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        #- Key: Application
+        #  Value: !Ref AWS::StackName
+        - Key: Network
+          Value: Public
+        - Key: Name
+          Value: !Ref InternetGateWayName
+
+  GatewayToInternet:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+
+Outputs:
+  VPCId:
+    Description: VPCId of VPC
+    Value: !Ref VPC
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-VPC
+
+  PublicSubnet0:
+    Description: SubnetId of public subnet 0
+    Value: !Ref PublicSubnet0
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-PublicSubnet0
+
+  PrivateSubnet0:
+    Description: SubnetId of private subnet 0
+    Value: !Ref PrivateSubnet0
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-PrivateSubnet0
+    
+  InternetGateway:
+    Description: Id of InternetGateway
+    Value: !Ref InternetGateway
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-InternetGateway
+      
+  GatewayToInternet:
+    Description: Id of Gateway To Internet
+    Value: !Ref GatewayToInternet
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-GatewayToInternet

@@ -1,0 +1,26 @@
+Parameters:
+  VPCId:
+    Type: String
+    Description: "ID of the VPC where resources will be deployed"
+  PublicSubnetId:
+    Type: String
+    Description: "ID of the public subnet"
+# nat-gateway.yml
+Resources:
+  ElasticIP0:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+
+  NATGateway:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt ElasticIP0.AllocationId
+      SubnetId: !Ref PublicSubnetId
+
+Outputs:
+  NATGateway:
+    Description: Id of NAT Gateway
+    Value: !Ref NATGateway
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-NATGateway

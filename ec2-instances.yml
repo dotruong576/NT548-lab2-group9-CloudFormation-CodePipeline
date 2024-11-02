@@ -1,0 +1,80 @@
+Parameters:
+  InstanceTypeParameter:
+    Type: String
+    Default: t3.micro
+    AllowedValues:
+      - t3.micro
+      - t3.small
+      - t3.medium
+      - t3.large
+    Description: "Select an instance type."
+  KeyName:
+    Description: Name of an existing EC2 KeyPair to enable SSH access into the server
+    Type: AWS::EC2::KeyPair::KeyName
+
+  VPCId:
+    Type: String
+    Description: "ID of the VPC where resources will be deployed"
+  
+  PublicSubnetId:
+    Type: String
+    Description: "ID of the public subnet"
+  
+  PrivateSubnetId:
+    Type: String
+    Description: "ID of the private subnet"
+
+  PublicEC2InstanceSecurityGroupId:
+    Type: String
+    Description: "Security Group ID of Public EC2 Instance"
+
+  PrivateEC2InstanceSecurityGroupId:
+    Type: String
+    Description: "Security Group ID of Private EC2 Instance"
+  
+  PrivateEC2InstanceName:
+    Type: String
+    Description: "Name of Private EC2 Instance"
+
+  PublicEC2InstanceName:
+    Type: String
+    Description: "Name of Public EC2 Instance"
+
+# ec2-instances.yml
+Resources:
+#------------------------- PUBLIC EC2 INSTANCE ----------------------------#
+  PublicEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceTypeParameter
+      ImageId: 'ami-0dfcb1ef8550277af'
+      NetworkInterfaces:
+        - GroupSet: [!Ref PublicEC2InstanceSecurityGroupId]
+          AssociatePublicIpAddress: 'true'
+          DeviceIndex: '0'
+          DeleteOnTermination: 'true'
+          SubnetId: !Ref PublicSubnetId
+      Tags:
+        - Key: Name
+          Value: !Ref PublicEC2InstanceName
+      KeyName: !Ref KeyName
+
+ #------------------------ PRIVATE EC2 INSTANCE ----------------------------#
+  PrivateEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceTypeParameter
+      ImageId: 'ami-0dfcb1ef8550277af'
+      NetworkInterfaces:
+        - GroupSet: [!Ref PrivateEC2InstanceSecurityGroupId]
+          AssociatePublicIpAddress: 'true'
+          DeviceIndex: '0'
+          DeleteOnTermination: 'true'
+          SubnetId: !Ref PrivateSubnetId
+      Tags:
+        - Key: Name
+          Value: !Ref PrivateEC2InstanceName
+      KeyName: !Ref KeyName
+
+
+

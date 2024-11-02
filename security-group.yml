@@ -1,0 +1,55 @@
+Parameters:
+  VPCId:
+    Type: String
+    Description: "ID of the VPC where resources will be deployed"
+  PublicEC2InstanceSecurityGroupName:
+    Type: String
+    Description: "Name of Public EC2 Instance Security Group"
+  PrivateEC2InstanceSecurityGroupName:
+    Type: String
+    Description: "Name of Private EC2 Instance Security Group"
+Resources:
+  #--------------- SECURITY GROUP FOR PUBLIC EC2 INSTANCE ---------------------#
+  PublicEC2InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: EC2SecurityGroupPublic
+      VpcId: !Ref VPCId
+      SecurityGroupIngress:
+        - CidrIp: 171.235.152.130/32
+          FromPort: 22
+          ToPort: 22
+          IpProtocol: tcp
+      GroupName: !Ref PublicEC2InstanceSecurityGroupName
+      Tags:
+        - Key: Name
+          Value: !Ref PublicEC2InstanceSecurityGroupName
+
+  #--------------- SECURITY GROUP FOR PRIVATE EC2 INSTANCE ---------------------#
+  PrivateEC2InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: EC2SecurityGroupPrivate
+      VpcId: !Ref VPCId
+      SecurityGroupIngress:
+        - SourceSecurityGroupId: !Ref PublicEC2InstanceSecurityGroup
+          FromPort: 22
+          ToPort: 22
+          IpProtocol: tcp
+      GroupName: !Ref PrivateEC2InstanceSecurityGroupName
+      Tags:
+        - Key: Name
+          Value: !Ref PrivateEC2InstanceSecurityGroupName
+
+Outputs:
+  PublicEC2InstanceSecurityGroup:
+    Description: Security Group ID of Public EC2 Instance
+    Value: !Ref PublicEC2InstanceSecurityGroup
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-PublicEC2InstanceSecurityGroup
+  
+  PrivateEC2InstanceSecurityGroup:
+    Description: Security Group ID of Private EC2 Instance
+    Value: !Ref PrivateEC2InstanceSecurityGroup
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-PrivateEC2InstanceSecurityGroup
