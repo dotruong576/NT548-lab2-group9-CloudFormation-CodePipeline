@@ -18,7 +18,7 @@ phases:
       - echo "Linting CloudFormation templates..."
       - cfn-lint main.yml
       - echo "Running Taskcat for testing..."
-      - taskcat test run -c taskcat.yml
+      - taskcat test run -c .taskcat.yml
   build:
     commands:
       - echo "Building and deploying CloudFormation stack..."
