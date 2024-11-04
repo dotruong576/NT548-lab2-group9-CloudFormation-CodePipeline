@@ -1,0 +1,27 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.0
+    commands:
+      - pip install cfn-lint
+      - pip install taskcat
+      - aws s3 cp https://s3.amazonaws.com/cloudformation-modules/vpc-networking.yml vpc-networking.yml
+      - aws s3 cp https://s3.amazonaws.com/cloudformation-modules/nat-gateway.yml nat-gateway.yml
+      - aws s3 cp https://s3.amazonaws.com/cloudformation-modules/route-tables.yml route-tables.yml
+      - aws s3 cp https://s3.amazonaws.com/cloudformation-modules/ec2-instances.yml ec2-instances.yml
+      - aws s3 cp https://s3.amazonaws.com/cloudformation-modules/security-group.yml security-group.yml
+      - aws s3 cp https://s3.amazonaws.com/cloudformation-modules/main.yml main.yml
+  pre_build:
+    commands:
+      - echo "Linting CloudFormation templates..."
+      - cfn-lint main.yml
+      - echo "Running Taskcat for testing..."
+      - taskcat test run -c taskcat.yml
+  build:
+    commands:
+      - echo "Building and deploying CloudFormation stack..."
+      - aws cloudformation deploy \
+          --template-file main.yml \
+          --stack-name testThanh 
