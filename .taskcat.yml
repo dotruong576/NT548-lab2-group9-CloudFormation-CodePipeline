@@ -1,0 +1,20 @@
+project:
+  name: mainstacktesting
+  regions:
+    - us-east-1
+
+tests:
+  MainStackTest:
+    template: main.yml
+    parameters:
+      VPCName: Lab1_Group9
+      VPCCIDR: 10.0.0.0/16
+      PublicSubnetCIDR: 10.0.0.0/24
+      PrivateSubnetCIDR: 10.0.1.0/24
+      InternetGateWayName: Lab1_Group9_IGW
+      PrivateSubnetName: Lab1_Group9_Private
+      PublicSubnetName: Lab1_Group9_Public
+      KeyName: Lab1_Group9_Key
+      InstanceTypeParameter: t3.micro
+      PublicEC2InstanceSecurityGroupName: Lab1_Group9_Public_SG
+      PrivateEC2InstanceSecurityGroupName: Lab1_Group9_Private_SG
