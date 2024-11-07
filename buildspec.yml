@@ -22,4 +22,4 @@ phases:
   build:
     commands:
       - echo "Building and deploying CloudFormation stack..."
-      - aws cloudformation deploy --template-file main.yml --stack-name Lab2-CodeBuild-CodePipeline-Cloudformation
+      - aws cloudformation deploy --template-file main.yml --stack-name Lab2_hehe_Cloudformation
