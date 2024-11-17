@@ -6,4 +6,3 @@ project:
 tests:
   MainStackTest:
     template: main.yml
-    VPCName: Lab1_Group9
