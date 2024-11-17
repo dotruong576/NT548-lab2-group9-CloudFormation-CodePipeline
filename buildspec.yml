@@ -7,11 +7,11 @@ phases:
     commands:
       - pip install cfn-lint
       - pip install taskcat
-      - aws s3 cp s3://cloudformation-modules/nat-gateway.yml nat-gateway.yml
-      - aws s3 cp s3://cloudformation-modules/route-tables.yml route-tables.yml
-      - aws s3 cp s3://cloudformation-modules/ec2-instances.yml ec2-instances.yml
-      - aws s3 cp s3://cloudformation-modules/security-group.yml security-group.yml
-      - aws s3 cp s3://cloudformation-modules/main.yml main.yml
+      - aws s3 cp s3://lab2-group9/nat-gateway.yml nat-gateway.yml
+      - aws s3 cp s3://lab2-group9/route-tables.yml route-tables.yml
+      - aws s3 cp s3://lab2-group9/ec2-instances.yml ec2-instances.yml
+      - aws s3 cp s3://lab2-group9/security-group.yml security-group.yml
+      - aws s3 cp s3://lab2-group9/main.yml main.yml
 
   pre_build:
     commands:
