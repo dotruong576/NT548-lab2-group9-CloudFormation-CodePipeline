@@ -217,3 +217,5 @@ Resources:
                 - Name: SourceArtifact
               RunOrder: 1
       Name: Group9CodePipeline
+      Version: 2
+      ExecutionMode: QUEUED
