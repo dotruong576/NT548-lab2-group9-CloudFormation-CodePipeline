@@ -28,7 +28,7 @@ Resources:
           Status: DISABLED
           EncryptionDisabled: false
       Tags: []  
-      
+
   CodePipelineRole:
     Type: AWS::IAM::Role
     Properties:
