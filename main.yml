@@ -2,18 +2,6 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: Main stack to deploy all sub-modules (VPC, NAT Gateway, EC2 Instances)
 
 Resources:
-  CodeBuildStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub "https://s3.amazonaws.com/lab2-group9/codebuild.yml"
-
-  CodePipelineStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub "https://s3.amazonaws.com/lab2-group9/codepipeline.yml"
-      Parameters:
-        CodeBuildProjectName: !GetAtt CodeBuildStack.Outputs.Group9CodeBuildName
-        
   VPCStack:
     Type: AWS::CloudFormation::Stack
     Properties:
