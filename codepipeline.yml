@@ -23,7 +23,7 @@ Resources:
                   - s3:*
                   - codebuild:*
                   - cloudformation:*
-                  - iam:PassRole
+                  - iam:*
                   - secretsmanager:GetSecretValue
                 Resource: "*"
 
@@ -50,7 +50,7 @@ Resources:
                   - s3:*
                   - codebuild:*
                   - cloudformation:*
-                  - iam:PassRole
+                  - iam:*
                   - secretsmanager:GetSecretValue
                 Resource: "*"
 
@@ -139,7 +139,7 @@ Resources:
                 Action:
                   - s3:*
                   - ec2:*
-                  - iam:PassRole
+                  - iam:*
                   - cloudwatch:*
                   - autoscaling:*
                   - rds:*
