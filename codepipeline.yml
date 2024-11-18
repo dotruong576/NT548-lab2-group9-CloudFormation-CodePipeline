@@ -13,6 +13,8 @@ Resources:
               Service: "codepipeline.amazonaws.com"
             Action: "sts:AssumeRole"
       MaxSessionDuration: 3600
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/AdministratorAccess
       Policies:
         - PolicyName: "CodePipelineServicePolicy"
           PolicyDocument:
@@ -41,6 +43,8 @@ Resources:
               Service: "codebuild.amazonaws.com"
             Action: "sts:AssumeRole"
       MaxSessionDuration: 3600
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/AdministratorAccess
       Policies:
         - PolicyName: "CodeBuildService"
           PolicyDocument:
@@ -132,6 +136,8 @@ Resources:
               Service: "cloudformation.amazonaws.com"
             Action: "sts:AssumeRole"
       MaxSessionDuration: 3600
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/AdministratorAccess
       Policies:
         - PolicyName: "CloudFormationServicePolicy"
           PolicyDocument:
