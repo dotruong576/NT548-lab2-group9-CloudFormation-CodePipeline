@@ -1,5 +1,65 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Resources:
+  AWSCodePipelineServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: "AWSCodePipelineServiceRole-us-east-1-Group9CodePipeline"
+      Path: "/service-role/"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "codepipeline.amazonaws.com"
+            Action: "sts:AssumeRole"
+      MaxSessionDuration: 3600
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/AdministratorAccess
+      Policies:
+        - PolicyName: "CodePipelineServicePolicy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:*
+                  - codebuild:*
+                  - cloudformation:*
+                  - iam:*
+                  - secretsmanager:GetSecretValue
+                  - logs:*
+                Resource: "*"
+
+  CodeBuildServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: "codebuild-Group9CodeBuild-service-role"
+      Path: "/service-role/"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "codebuild.amazonaws.com"
+            Action: "sts:AssumeRole"
+      MaxSessionDuration: 3600
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/AdministratorAccess
+      Policies:
+        - PolicyName: "CodeBuildService"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:*
+                  - codebuild:*
+                  - cloudformation:*
+                  - iam:*
+                  - secretsmanager:GetSecretValue
+                  - logs:*
+                Resource: "*"
+
   Group9CodeBuild:
     Type: AWS::CodeBuild::Project
     Properties:
@@ -17,7 +77,7 @@ Resources:
         ComputeType: BUILD_GENERAL1_SMALL
         PrivilegedMode: false
         ImagePullCredentialsType: CODEBUILD
-      ServiceRole: "arn:aws:iam::122610523504:role/service-role/codebuild-Group9CodeBuild-service-role"
+      ServiceRole: !GetAtt CodeBuildServiceRole.Arn
       TimeoutInMinutes: 60
       QueuedTimeoutInMinutes: 480
       EncryptionKey: "arn:aws:kms:us-east-1:122610523504:alias/aws/s3"
@@ -29,40 +89,80 @@ Resources:
           EncryptionDisabled: false
       Tags: []  
 
-  CodePipelineRole:
+  CodePipelineBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: "codepipeline-us-east-1-lab2-group9"
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+            BucketKeyEnabled: true
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        IgnorePublicAcls: false
+        BlockPublicPolicy: false
+        RestrictPublicBuckets: false
+      AccessControl: Private # Ensures that only the owner has full control.
+  
+  CodePipelineBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref CodePipelineBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              AWS: "*"
+            Action: "s3:*"
+            Resource:
+              - "arn:aws:s3:::codepipeline-us-east-1-lab2-group9"
+              - "arn:aws:s3:::codepipeline-us-east-1-lab2-group9/*"
+
+  CloudFormationRole:
     Type: AWS::IAM::Role
     Properties:
+      RoleName: "CloudformationRole"
+      Path: "/"
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Statement:
-          - Effect: Allow
+          - Sid: ""
+            Effect: "Allow"
             Principal:
-              Service:
-                - codepipeline.amazonaws.com
-            Action: sts:AssumeRole
+              Service: "cloudformation.amazonaws.com"
+            Action: "sts:AssumeRole"
+      MaxSessionDuration: 3600
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/AdministratorAccess
       Policies:
-        - PolicyName: CodePipelinePolicy
+        - PolicyName: "CloudFormationServicePolicy"
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
               - Effect: Allow
                 Action:
                   - s3:*
-                  - codebuild:*
-                  - iam:PassRole
-                  - cloudformation:*
+                  - ec2:*
+                  - iam:*
+                  - cloudwatch:*
+                  - autoscaling:*
+                  - rds:*
+                  - lambda:*
                   - secretsmanager:GetSecretValue
+                  - dynamodb:*
+                  - sns:*
+                  - sqs:*
+                  - logs:*
                 Resource: "*"
-
-  CodePipelineBucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: codepipeline-us-east-1-lab2-group9
 
   CodePipeline:
     Type: AWS::CodePipeline::Pipeline
     Properties:
-      RoleArn: !GetAtt CodePipelineRole.Arn
+      RoleArn: !GetAtt AWSCodePipelineServiceRole.Arn
       ArtifactStore:
         Type: S3
         Location: !Ref CodePipelineBucket
