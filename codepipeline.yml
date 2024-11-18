@@ -1,143 +1,119 @@
-AWSTemplateFormatVersion: "2010-09-09"
-
-Description: CodePipeline for continuous integration build and continuous deployment
-
-Parameters:
-  CodeBuildStack:
-    Description: Name of the code build stack which should have been deployed before this stack
-    Type: String
-
+AWSTemplateFormatVersion: '2010-09-09'
 Resources:
-  PipelineRole:
+  Group9CodeBuild:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: Group9CodeBuild
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: "buildspec.yml"
+        InsecureSsl: false
+      Artifacts:
+        Type: CODEPIPELINE
+        Name: Group9CodeBuild
+      Environment:
+        Type: LINUX_CONTAINER
+        Image: "aws/codebuild/amazonlinux2-x86_64-standard:5.0"
+        ComputeType: BUILD_GENERAL1_SMALL
+        PrivilegedMode: false
+        ImagePullCredentialsType: CODEBUILD
+      ServiceRole: "arn:aws:iam::122610523504:role/service-role/codebuild-Group9CodeBuild-service-role"
+      TimeoutInMinutes: 60
+      QueuedTimeoutInMinutes: 480
+      EncryptionKey: "arn:aws:kms:us-east-1:122610523504:alias/aws/s3"
+      LogsConfig:
+        CloudWatchLogs:
+          Status: ENABLED
+        S3Logs:
+          Status: DISABLED
+          EncryptionDisabled: false
+      Tags: []  
+
+  CodePipelineRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: "2012-10-17"
+        Version: '2012-10-17'
         Statement:
           - Effect: Allow
             Principal:
               Service:
                 - codepipeline.amazonaws.com
-            Action:
-              - sts:AssumeRole
+            Action: sts:AssumeRole
       Policies:
-        - PolicyName: CanAccessCodeCommit
+        - PolicyName: CodePipelinePolicy
           PolicyDocument:
-            Version: "2012-10-17"
+            Version: '2012-10-17'
             Statement:
               - Effect: Allow
                 Action:
-                  - codecommit:GetBranch
-                  - codecommit:GetCommit
-                  - codecommit:UploadArchive
-                  - codecommit:GetUploadArchiveStatus
-                Resource:
-                  - !ImportValue
-                    Fn::Sub: ${CodeBuildStack}-CodeCommitArn
+                  - s3:*
+                  - codebuild:*
+                  - iam:PassRole
+                  - cloudformation:*
+                  - secretsmanager:GetSecretValue
+                Resource: "*"
 
-                    # - !Sub "arn:aws:codecommit:${AWS::Region}:${AWS::AccountId}:${RepositoryName}/*"
-        - PolicyName: CanAccessS3
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: Allow
-                Action: s3:ListBucket
-                Resource: '*'
-              - Effect: Allow
-                Action:
-                  - s3:GetObject
-                  - s3:GetObjectVersion
-                  - s3:GetBucketVersioning
-                  - s3:PutObject
-                  - s3:GetBucketPolicy
-                  - s3:GetObjectAcl
-                  - s3:PutObjectAcl
-                  - s3:DeleteObject
-                Resource:
-                  - !ImportValue
-                    Fn::Sub: ${CodeBuildStack}-PipelineS3BucketArn
-                  - !Sub
-                    - ${filename}/*
-                    - filename: !ImportValue
-                        Fn::Sub: ${CodeBuildStack}-PipelineS3BucketArn
-        - PolicyName: CanStartCodeBuild
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: Allow
-                Action:
-                  - codebuild:BatchGetBuilds
-                  - codebuild:StartBuild
-                Resource:
-                  - !ImportValue
-                    Fn::Sub: ${CodeBuildStack}-AppBuildArn
-                  - !ImportValue
-                    Fn::Sub: ${CodeBuildStack}-AppDeployArn
+  CodePipelineBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: codepipeline-us-east-1-lab2-group9
 
-  Pipeline:
+  CodePipeline:
     Type: AWS::CodePipeline::Pipeline
     Properties:
-      Name: !Sub ${AWS::StackName}-Code-Pipeline
+      RoleArn: !GetAtt CodePipelineRole.Arn
       ArtifactStore:
         Type: S3
-        Location: !ImportValue
-          Fn::Sub: ${CodeBuildStack}-PipelineS3Bucket
-      RestartExecutionOnUpdate: false
-      RoleArn: !GetAtt PipelineRole.Arn
+        Location: !Ref CodePipelineBucket
       Stages:
         - Name: Source
           Actions:
             - Name: Source
               ActionTypeId:
                 Category: Source
-                Owner: AWS
-                Provider: CodeCommit
-                Version: 1
+                Owner: ThirdParty
+                Provider: GitHub
+                Version: "1"
               Configuration:
-                RepositoryName: !ImportValue
-                  Fn::Sub: ${CodeBuildStack}-CodeCommitName
-                BranchName: main
+                Branch: main
+                Owner: 21522604
+                Repo: NT548-lab2-group9-CloudFormation-CodePipeline
+                PollForSourceChanges: "false"
+                OAuthToken: '{{resolve:secretsmanager:GitHub/Token:SecretString}}'
               OutputArtifacts:
-                - Name: Source
-        - Name: Build-AppBuild
-          Actions:
-            - Name: App-Build
-              ActionTypeId:
-                Category: Build
-                Owner: AWS
-                Provider: CodeBuild
-                Version: 1
-              Configuration:
-                ProjectName: !ImportValue
-                  Fn::Sub: ${CodeBuildStack}-AppBuild
-              InputArtifacts:
-                - Name: Source
-              OutputArtifacts:
-                - Name: FullZip
+                - Name: SourceArtifact
               RunOrder: 1
-        - Name: Deploy-App
+        - Name: Build
           Actions:
-            - Name: Approval
-              ActionTypeId:
-                Category: Approval
-                Owner: AWS
-                Provider: Manual
-                Version: 1
-              Configuration:
-                CustomData: Review the build output and approve to deploy
-              RunOrder: 2
-            - Name: App-Deploy
+            - Name: Build
               ActionTypeId:
                 Category: Build
                 Owner: AWS
                 Provider: CodeBuild
-                Version: 1
+                Version: "1"
               Configuration:
-                ProjectName: !ImportValue
-                  Fn::Sub: ${CodeBuildStack}-AppDeploy
-                PrimarySource: Source
-                EnvironmentVariables: '[{"name":"ENVIRONMENT","value":"SampleEnv","type":"PLAINTEXT"}]'
+                ProjectName: Group9CodeBuild
               InputArtifacts:
-                - Name: Source
-                - Name: FullZip
-              RunOrder: 3
+                - Name: SourceArtifact
+              OutputArtifacts:
+                - Name: BuildArtifact
+              RunOrder: 1
+        - Name: Deploy
+          Actions:
+            - Name: Deploy
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: "1"
+              Configuration:
+                ActionMode: CREATE_UPDATE
+                Capabilities: CAPABILITY_IAM
+                RoleArn: arn:aws:iam::122610523504:role/CloudformationRole
+                StackName: Group9Stack
+                TemplatePath: SourceArtifact::main.yml
+              InputArtifacts:
+                - Name: SourceArtifact
+              RunOrder: 1
+      Name: Group9CodePipeline
