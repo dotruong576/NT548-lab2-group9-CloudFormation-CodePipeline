@@ -5,7 +5,7 @@ Resources:
   VPCStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://s3.amazonaws.com/cloudformation-modules/vpc-networking.yml
+      TemplateURL: https://s3.amazonaws.com/lab2-group9/vpc-networking.yml
       Parameters:
         VPCName: Lab1_Group9
         VPCCIDR: 10.0.0.0/16
@@ -18,7 +18,7 @@ Resources:
   NATGatewayStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://s3.amazonaws.com/cloudformation-modules/nat-gateway.yml
+      TemplateURL: https://s3.amazonaws.com/lab2-group9/nat-gateway.yml
       Parameters:
         VPCId: !GetAtt VPCStack.Outputs.VPCId
         PublicSubnetId: !GetAtt VPCStack.Outputs.PublicSubnet0
@@ -26,7 +26,7 @@ Resources:
   RouteTablesStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://s3.amazonaws.com/cloudformation-modules/route-tables.yml
+      TemplateURL: https://s3.amazonaws.com/lab2-group9/route-tables.yml
       Parameters:
         VPCId: !GetAtt VPCStack.Outputs.VPCId
         PublicSubnetId: !GetAtt VPCStack.Outputs.PublicSubnet0
@@ -41,7 +41,7 @@ Resources:
   EC2InstanceStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://s3.amazonaws.com/cloudformation-modules/ec2-instances.yml
+      TemplateURL: https://s3.amazonaws.com/lab2-group9/ec2-instances.yml
       Parameters:
         VPCId: !GetAtt VPCStack.Outputs.VPCId
         PublicSubnetId: !GetAtt VPCStack.Outputs.PublicSubnet0
@@ -56,7 +56,7 @@ Resources:
   SecurityGroupStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://s3.amazonaws.com/cloudformation-modules/security-group.yml
+      TemplateURL: https://s3.amazonaws.com/lab2-group9/security-group.yml
       Parameters:
         VPCId: !GetAtt VPCStack.Outputs.VPCId
         PublicEC2InstanceSecurityGroupName: Lab1_Group9_Public_SG
