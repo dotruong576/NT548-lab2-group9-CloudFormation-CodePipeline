@@ -20,12 +20,9 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - s3:GetObject
-                  - s3:PutObject
-                  - codebuild:StartBuild
-                  - codebuild:BatchGetBuilds
-                  - cloudformation:CreateStack
-                  - cloudformation:UpdateStack
+                  - s3:*
+                  - codebuild:*
+                  - cloudformation:*
                   - iam:PassRole
                   - secretsmanager:GetSecretValue
                 Resource: "*"
@@ -72,32 +69,6 @@ Resources:
           Status: DISABLED
           EncryptionDisabled: false
       Tags: []  
-
-  CodePipelineRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - codepipeline.amazonaws.com
-            Action: sts:AssumeRole
-      Policies:
-        - PolicyName: CodePipelinePolicy
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - s3:*
-                  - codebuild:*
-                  - iam:PassRole
-                  - cloudformation:*
-                  - secretsmanager:GetSecretValue
-                Resource: "*"
-
 
   CodePipelineBucket:
     Type: AWS::S3::Bucket
@@ -170,7 +141,7 @@ Resources:
   CodePipeline:
     Type: AWS::CodePipeline::Pipeline
     Properties:
-      RoleArn: !GetAtt CodePipelineRole.Arn
+      RoleArn: !GetAtt AWSCodePipelineServiceRole.Arn
       ArtifactStore:
         Type: S3
         Location: !Ref CodePipelineBucket
