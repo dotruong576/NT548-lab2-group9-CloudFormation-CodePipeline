@@ -7,7 +7,7 @@ tests:
   MainStackTest:
     template: main.yml
     parameters:
-      VPCName: Lab1_Group9
+      VPCName: Lab2_Group9
       VPCCIDR: 10.0.0.0/16
       PublicSubnetCIDR: 10.0.0.0/24
       PrivateSubnetCIDR: 10.0.1.0/24
