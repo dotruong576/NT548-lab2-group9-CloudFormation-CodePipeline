@@ -1,5 +1,49 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Resources:
+  AWSCodePipelineServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: "AWSCodePipelineServiceRole-us-east-1-Group9CodePipeline"
+      Path: "/service-role/"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "codepipeline.amazonaws.com"
+            Action: "sts:AssumeRole"
+      MaxSessionDuration: 3600
+      Policies:
+        - PolicyName: "CodePipelineServicePolicy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - codebuild:StartBuild
+                  - codebuild:BatchGetBuilds
+                  - cloudformation:CreateStack
+                  - cloudformation:UpdateStack
+                  - iam:PassRole
+                  - secretsmanager:GetSecretValue
+                Resource: "*"
+
+  CodeBuildServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: "codebuild-Group9CodeBuild-service-role"
+      Path: "/service-role/"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "codebuild.amazonaws.com"
+            Action: "sts:AssumeRole"
+      MaxSessionDuration: 3600
+
   Group9CodeBuild:
     Type: AWS::CodeBuild::Project
     Properties:
@@ -54,10 +98,74 @@ Resources:
                   - secretsmanager:GetSecretValue
                 Resource: "*"
 
+
   CodePipelineBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: codepipeline-us-east-1-lab2-group9
+      BucketName: "codepipeline-us-east-1-lab2-group9"
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+            BucketKeyEnabled: true
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        IgnorePublicAcls: false
+        BlockPublicPolicy: false
+        RestrictPublicBuckets: false
+      AccessControl: Private # Ensures that only the owner has full control.
+  
+  CodePipelineBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref CodePipelineBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              AWS: "*"
+            Action: "s3:*"
+            Resource:
+              - "arn:aws:s3:::codepipeline-us-east-1-lab2-group9"
+              - "arn:aws:s3:::codepipeline-us-east-1-lab2-group9/*"
+
+  CloudFormationRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: "CloudformationRole"
+      Path: "/"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: ""
+            Effect: "Allow"
+            Principal:
+              Service: "cloudformation.amazonaws.com"
+            Action: "sts:AssumeRole"
+      MaxSessionDuration: 3600
+      Policies:
+        - PolicyName: "CloudFormationServicePolicy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:*
+                  - ec2:*
+                  - iam:PassRole
+                  - cloudwatch:*
+                  - autoscaling:*
+                  - rds:*
+                  - lambda:*
+                  - secretsmanager:GetSecretValue
+                  - dynamodb:*
+                  - sns:*
+                  - sqs:*
+                  - logs:*
+                Resource: "*"
 
   CodePipeline:
     Type: AWS::CodePipeline::Pipeline
