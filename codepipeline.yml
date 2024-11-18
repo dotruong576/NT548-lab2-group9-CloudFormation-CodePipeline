@@ -25,6 +25,7 @@ Resources:
                   - cloudformation:*
                   - iam:*
                   - secretsmanager:GetSecretValue
+                  - logs:*
                 Resource: "*"
 
   CodeBuildServiceRole:
@@ -41,7 +42,7 @@ Resources:
             Action: "sts:AssumeRole"
       MaxSessionDuration: 3600
       Policies:
-        - PolicyName: "CodeBuildServicePolicy"
+        - PolicyName: "CodeBuildService"
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
@@ -52,6 +53,7 @@ Resources:
                   - cloudformation:*
                   - iam:*
                   - secretsmanager:GetSecretValue
+                  - logs:*
                 Resource: "*"
 
   Group9CodeBuild:
@@ -71,7 +73,7 @@ Resources:
         ComputeType: BUILD_GENERAL1_SMALL
         PrivilegedMode: false
         ImagePullCredentialsType: CODEBUILD
-      ServiceRole: "arn:aws:iam::122610523504:role/service-role/codebuild-Group9CodeBuild-service-role"
+      ServiceRole: !GetAtt CodeBuildServiceRole.Arn
       TimeoutInMinutes: 60
       QueuedTimeoutInMinutes: 480
       EncryptionKey: "arn:aws:kms:us-east-1:122610523504:alias/aws/s3"
