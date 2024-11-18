@@ -40,6 +40,19 @@ Resources:
               Service: "codebuild.amazonaws.com"
             Action: "sts:AssumeRole"
       MaxSessionDuration: 3600
+      Policies:
+        - PolicyName: "CodeBuildServicePolicy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:*
+                  - codebuild:*
+                  - cloudformation:*
+                  - iam:PassRole
+                  - secretsmanager:GetSecretValue
+                Resource: "*"
 
   Group9CodeBuild:
     Type: AWS::CodeBuild::Project
