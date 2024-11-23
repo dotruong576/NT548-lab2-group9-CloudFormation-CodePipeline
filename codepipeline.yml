@@ -139,6 +139,7 @@ Resources:
             Effect: "Allow"
             Principal:
               Service: "cloudformation.amazonaws.com"
+            Action: "sts:AssumeRole"
       MaxSessionDuration: 3600
       ManagedPolicyArns:
       - arn:aws:iam::aws:policy/AdministratorAccess
@@ -178,7 +179,7 @@ Resources:
                 Category: Source
                 Owner: ThirdParty
                 Provider: GitHub
-                Version: "1"
+                Version: "2"
               Configuration:
                 Branch: main
                 Owner: !Ref GitHubOwner
@@ -195,7 +196,7 @@ Resources:
                 Category: Build
                 Owner: AWS
                 Provider: CodeBuild
-                Version: "1"
+                Version: "2"
               Configuration:
                 ProjectName: Group9CodeBuild
               InputArtifacts:
@@ -210,7 +211,7 @@ Resources:
                 Category: Deploy
                 Owner: AWS
                 Provider: CloudFormation
-                Version: "1"
+                Version: "2"
               Configuration:
                 ActionMode: CREATE_UPDATE
                 Capabilities: CAPABILITY_IAM
