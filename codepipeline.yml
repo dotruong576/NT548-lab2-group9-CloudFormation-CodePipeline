@@ -167,6 +167,9 @@ Resources:
   CodePipeline:
     Type: AWS::CodePipeline::Pipeline
     Properties:
+      Name: Group9CodePipeline
+      Version: 2
+      ExecutionMode: PARALELL
       RoleArn: !GetAtt AWSCodePipelineServiceRole.Arn
       ArtifactStore:
         Type: S3
@@ -196,7 +199,7 @@ Resources:
                 Category: Build
                 Owner: AWS
                 Provider: CodeBuild
-                Version: "2"
+                Version: "1"
               Configuration:
                 ProjectName: Group9CodeBuild
               InputArtifacts:
@@ -211,7 +214,7 @@ Resources:
                 Category: Deploy
                 Owner: AWS
                 Provider: CloudFormation
-                Version: "2"
+                Version: "1"
               Configuration:
                 ActionMode: CREATE_UPDATE
                 Capabilities: CAPABILITY_IAM
@@ -221,6 +224,4 @@ Resources:
               InputArtifacts:
                 - Name: SourceArtifact
               RunOrder: 1
-      Name: Group9CodePipeline
-      Version: 2
-      ExecutionMode: QUEUED
+      
