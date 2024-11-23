@@ -169,7 +169,7 @@ Resources:
     Properties:
       Name: Group9CodePipeline
       Version: 2
-      ExecutionMode: PARALLEL
+      ExecutionMode: CONTINUOUS
       RoleArn: !GetAtt AWSCodePipelineServiceRole.Arn
       ArtifactStore:
         Type: S3
