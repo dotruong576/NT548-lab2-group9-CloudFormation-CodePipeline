@@ -179,7 +179,7 @@ Resources:
                 Category: Source
                 Owner: ThirdParty
                 Provider: GitHub
-                Version: "2"
+                Version: "1"
               Configuration:
                 Branch: main
                 Owner: !Ref GitHubOwner
