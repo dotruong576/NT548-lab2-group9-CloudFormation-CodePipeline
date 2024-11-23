@@ -12,7 +12,7 @@ phases:
       - aws s3 cp s3://lab2-group9/ec2-instances.yml ec2-instances.yml
       - aws s3 cp s3://lab2-group9/security-group.yml security-group.yml
       - aws s3 cp s3://lab2-group9/main.yml main.yml
-
+ 
   pre_build:
     commands:
       - echo "Linting CloudFormation templates..."
