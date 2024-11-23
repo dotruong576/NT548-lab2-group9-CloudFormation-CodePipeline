@@ -141,26 +141,28 @@ Resources:
               Service: "cloudformation.amazonaws.com"
             Action: "sts:AssumeRole"
       MaxSessionDuration: 3600
-      Policies:
-        - PolicyName: "CloudFormationServicePolicy"
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: Allow
-                Action:
-                  - s3:*
-                  - ec2:*
-                  - iam:*
-                  - cloudwatch:*
-                  - autoscaling:*
-                  - rds:*
-                  - lambda:*
-                  - secretsmanager:GetSecretValue
-                  - dynamodb:*
-                  - sns:*
-                  - sqs:*
-                  - logs:*
-                Resource: "*"
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/AdministratorAccess
+      # Policies:
+      #   - PolicyName: "CloudFormationServicePolicy"
+      #     PolicyDocument:
+      #       Version: "2012-10-17"
+      #       Statement:
+      #         - Effect: Allow
+      #           Action:
+      #             - s3:*
+      #             - ec2:*
+      #             - iam:*
+      #             - cloudwatch:*
+      #             - autoscaling:*
+      #             - rds:*
+      #             - lambda:*
+      #             - secretsmanager:GetSecretValue
+      #             - dynamodb:*
+      #             - sns:*
+      #             - sqs:*
+      #             - logs:*
+      #           Resource: "*"
 
   CodePipeline:
     Type: AWS::CodePipeline::Pipeline
