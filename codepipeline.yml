@@ -1,4 +1,8 @@
 AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  GitHubOwner:
+    Type: String
+    Description: GitHub repository owner (e.g., username or organization)
 Resources:
   AWSCodePipelineServiceRole:
     Type: AWS::IAM::Role
@@ -124,6 +128,7 @@ Resources:
 
   CloudFormationRole:
     Type: AWS::IAM::Role
+    DeletionPolicy: Retain
     Properties:
       RoleName: "CloudformationRole"
       Path: "/"
@@ -134,7 +139,6 @@ Resources:
             Effect: "Allow"
             Principal:
               Service: "cloudformation.amazonaws.com"
-            Action: "sts:AssumeRole"
       MaxSessionDuration: 3600
       ManagedPolicyArns:
       - arn:aws:iam::aws:policy/AdministratorAccess
@@ -177,7 +181,7 @@ Resources:
                 Version: "1"
               Configuration:
                 Branch: main
-                Owner: 21522604
+                Owner: !Ref GitHubOwner
                 Repo: NT548-lab2-group9-CloudFormation-CodePipeline
                 PollForSourceChanges: "false"
                 OAuthToken: '{{resolve:secretsmanager:GitHub/Token:SecretString}}'
