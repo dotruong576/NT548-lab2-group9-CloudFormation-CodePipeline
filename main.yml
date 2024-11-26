@@ -14,7 +14,7 @@ Resources:
         InternetGateWayName: Lab1_Group9_IGW
         PrivateSubnetName: Lab1_Group9_Private
         PublicSubnetName: Lab1_Group9_Public
-   
+    
   NATGatewayStack:
     Type: AWS::CloudFormation::Stack
     Properties:
